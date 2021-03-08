@@ -11,6 +11,7 @@ use Dingo\Api\Contract\Debug\ExceptionHandler;
 use Dingo\Api\Contract\Debug\MessageBagErrors;
 use Illuminate\Contracts\Debug\ExceptionHandler as IlluminateExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use ReflectionClass;
 use ReflectionFunction;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
@@ -371,7 +372,11 @@ class Handler implements ExceptionHandler, IlluminateExceptionHandler
 
         $exception = $reflection->getParameters()[0];
 
-        return $exception->getClass()->getName();
+        $class = $exception->getType() && !$exception->getType()->isBuiltin()
+            ? new ReflectionClass($exception->getType()->getName())
+            : null;
+
+        return $class->getName();
     }
 
     /**
